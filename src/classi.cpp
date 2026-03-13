@@ -1,0 +1,239 @@
+#include "classi.hpp"
+#include "funzioni.hpp"
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <time.h>
+#include <algorithm>
+
+// --- Prodotto ----------------------------------
+Prodotto::Prodotto(std::string nw_nome, float nw_prezzo_acquisto, float nw_prezzo_vendita, int nw_quantita)
+    : nome(nw_nome), prezzo_acquisto(nw_prezzo_acquisto), prezzo_vendita(nw_prezzo_vendita), quantita(nw_quantita) {}
+
+std::string Prodotto::get_nome() const {
+    return nome;
+}
+
+float Prodotto::get_prezzo_acquisto() const {
+    return prezzo_acquisto;
+}
+
+float Prodotto::get_prezzo_vendita() const {
+    return prezzo_vendita;
+}
+
+int Prodotto::get_quantita() const {
+    return quantita;
+}
+
+void Prodotto::comprato(int comprati) {
+    quantita -= comprati;
+}
+
+void Prodotto::set_quantita(int nw_quantita) {
+    quantita = nw_quantita;
+}
+// ------------------------------------------------
+
+// --- Mercato ------------------------------------
+Mercato::Mercato(std::string nw_nome) : nome(nw_nome), saldo(100), giorno(1) {}
+
+void Mercato::carica_prodotti(const std::string& filename) {
+    std::ifstream in(filename);
+    if (!in.is_open()) {
+        std::cerr << "Errore: file " << filename << " non trovato!\n";
+        system("pause");
+        return;
+    }
+
+    std::string riga;
+    while (std::getline(in, riga)) {
+        std::stringstream ss(riga);
+        std::string nome, tmp;
+        float prezzo_acquisto, prezzo_vendita;
+        int quantita;
+
+        std::getline(ss, nome, ';');
+        std::getline(ss, tmp, ';'); prezzo_acquisto = std::stof(tmp);
+        std::getline(ss, tmp, ';'); prezzo_vendita = std::stof(tmp);
+        std::getline(ss, tmp, ';'); quantita = std::stof(tmp);
+
+        aggiungi_prodotto(nome, prezzo_acquisto, prezzo_vendita, quantita);
+        
+    }
+}
+
+std::string Mercato::get_nome() const {
+    return nome;
+}
+
+float Mercato::get_saldo() const {
+    return saldo;
+}
+
+int Mercato::get_giorno() const {
+    return giorno;
+}
+
+// --------------------
+
+void Mercato::aggiungi_prodotto(std::string nw_nome, float nw_prezzo_acquisto, float nw_prezzo_vendita, int nw_quantita) {
+    Prodotto prodotto = {nw_nome, nw_prezzo_acquisto, nw_prezzo_vendita, nw_quantita};
+    prodotti.push_back(prodotto);
+}
+
+void Mercato::passa_giorno() {
+    giorno += 1;
+}
+
+void Mercato::mostra_prodotti() {
+    for (size_t i = 0; i < prodotti.size(); i++) {
+        std::cout << i + 1 
+                  << ". " << prodotti[i].get_nome()
+                  << " | Acquisto: (" << prodotti[i].get_prezzo_acquisto() << "€)"
+                  << " | Vendita: (" << prodotti[i].get_prezzo_vendita() << "€)" 
+                  << " | Quantita: " << prodotti[i].get_quantita() << std::endl;
+    }
+}
+
+void Mercato::mostra_magazzino() {
+    if (magazzino.empty()) {
+        std::cout << "\nMagazzino vuoto!\n\n";
+        system("pause");
+        return;
+    }
+    std::cout << "\n--- Ordinamento per '" << ordinamento << "' ---\n";
+    for (size_t i = 0; i < magazzino.size(); i++) {
+        std::cout << i + 1
+                  << ". " << magazzino[i].get_nome()
+                  << " | Acquisto: (" << magazzino[i].get_prezzo_acquisto() << "€)"
+                  << " | Vendita: (" << magazzino[i].get_prezzo_vendita() << "€)"
+                  << " | Quantita: " << magazzino[i].get_quantita() << std::endl;
+    }
+    system("pause");
+}
+
+float Mercato::compra_prodotti() {
+    float spesa_totale = 0;
+    while (1) {
+        std::cout << "Saldo: " << saldo << std::endl
+                  << "\n------------ Prodotti ------------\n";
+        mostra_prodotti();
+        std::cout << "0. Esci" << std::endl
+                  << "Scegli: ";
+        int scelta = get_int(0, prodotti.size());
+        scelta--;
+        if (scelta == -1) break;
+        else {
+            if (saldo < prodotti[scelta].get_prezzo_acquisto()) {
+                std::cout << "Saldo non disponibile!\n";
+                continue;
+            }
+            std::cout << "Inserire numero prodotti da comprare: ";
+            int comprati = get_int(0, prodotti[scelta].get_quantita());
+
+            float spesa = prodotti[scelta].get_prezzo_acquisto() * comprati;
+            spesa_totale += spesa;
+            if (saldo < spesa) {
+                std::cout << "Saldo non disponibile!\n";
+                continue;
+            }
+            std::cout << comprati << " " << prodotti[scelta].get_nome() << " comprati per " << spesa << " €!\n";
+            
+
+            // cerca prodotto in magazzino
+            bool trovato = false;
+            for (auto &p : magazzino) {
+                if (p.get_nome() == prodotti[scelta].get_nome()) {
+                    p.set_quantita(p.get_quantita() + comprati);
+                    trovato = true;
+                    break;
+                }
+            }
+            if (!trovato) {
+                Prodotto in_magazzino = {prodotti[scelta].get_nome(),
+                                         prodotti[scelta].get_prezzo_acquisto(),
+                                         prodotti[scelta].get_prezzo_vendita(),
+                                         comprati};
+                magazzino.push_back(in_magazzino);
+            }
+            prodotti[scelta].comprato(comprati);
+            saldo -= spesa;
+            std::cout << "\nSaldo: " << saldo << "€\n";
+        }
+    }
+    return spesa_totale;
+}
+
+float Mercato::vendi_prodotti(int clienti) {
+    float ricavo = 0;
+    if (magazzino.empty()) {
+        std::cout << "\nMagazzino vuoto! La gente è andata a casa!\n";
+        return 0;
+    }
+    for (int i = 0; i < clienti; i++) {
+        int prodotto_acquistato = rand() % magazzino.size();
+        if (magazzino[prodotto_acquistato].get_quantita() <= 0) continue;
+
+        int acquistati = rand() % giorno + 1;
+        if (acquistati > magazzino[prodotto_acquistato].get_quantita()) acquistati = magazzino[prodotto_acquistato].get_quantita();
+        ricavo += (magazzino[prodotto_acquistato].get_prezzo_vendita() * acquistati);
+        magazzino[prodotto_acquistato].comprato(acquistati);
+    }
+    saldo += ricavo;
+    return ricavo;
+}
+
+// --- ordinamento magazzino ------------------------------------
+
+void Mercato::ordina_magazzino_nome() {
+    ordinamento = "NOME";
+    std::sort(magazzino.begin(), magazzino.end(), [](const Prodotto &a, const Prodotto &b) {
+        std::string p1 = a.get_nome();
+        std::string p2 = b.get_nome();
+
+        std::transform(p1.begin(), p1.end(), p1.begin(), ::tolower);
+        std::transform(p2.begin(), p2.end(), p2.begin(), ::tolower);
+        
+        return p1 < p2;
+    });
+}
+
+void Mercato::ordina_magazzino_prezzo_acquisto() {
+    ordinamento = "PREZZO DI ACQUISTO";
+    std::sort(magazzino.begin(), magazzino.end(), [](const Prodotto &a, const Prodotto &b) {
+        float p1 = a.get_prezzo_acquisto();
+        float p2 = b.get_prezzo_acquisto();
+
+        return p1 > p2;
+    });
+}
+
+void Mercato::ordina_magazzino_prezzo_vendita() {
+    ordinamento = "PREZZO DI VENDITA";
+    std::sort(magazzino.begin(), magazzino.end(), [](const Prodotto &a, const Prodotto &b) {
+        float p1 = a.get_prezzo_vendita();
+        float p2 = b.get_prezzo_vendita();
+
+        return p1 > p2;
+    });
+}
+
+void Mercato::ordina_magazzino_quantita() {
+    ordinamento = "QUANTITÀ";
+    std::sort(magazzino.begin(), magazzino.end(), [](const Prodotto &a, const Prodotto &b) {
+        int p1 = a.get_quantita();
+        int p2 = b.get_quantita();
+
+        return p1 > p2;
+    });
+}
+
+// ---- Restock prodotti -------------------------------
+
+void Mercato::restock_prodotti() {
+    int restock = rand() % giorno + 1;
+    for (auto &p : prodotti) {
+        p.set_quantita(p.get_quantita() + restock);
+    }
+}
