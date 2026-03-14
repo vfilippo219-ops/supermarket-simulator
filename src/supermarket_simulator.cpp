@@ -8,6 +8,7 @@
 const int GIORNO_FINALE = 30;
 
 #define FILE_PRODOTTI "/files/prodotti_supermarket.txt"
+#define FILE_CATEGORIE_PRODOTTI "/files/categorie_prodotti_supermarket.txt"
 
 int main(int argc, char* argv[]) {
     srand(time(NULL));
@@ -21,6 +22,7 @@ int main(int argc, char* argv[]) {
     std::string nome_negozio = get_nome();
     Mercato mercato(nome_negozio);
     mercato.carica_prodotti(root + FILE_PRODOTTI);
+    mercato.carica_categorie_prodotti(root + FILE_CATEGORIE_PRODOTTI);
     mercato.ordina_magazzino_nome();
 
     while (mercato.get_giorno() <= GIORNO_FINALE) {
@@ -50,7 +52,7 @@ int main(int argc, char* argv[]) {
         case 2:
         {
             clear_screen();
-            int clienti = estrazione_clienti(mercato.get_giorno());
+            int clienti = mercato.estrazione_clienti();
             ricavo = mercato.vendi_prodotti(clienti);
             profitto = ricavo - spesa;
             std::cout << "───── Recap giorno '" << mercato.get_giorno() << "' ─────\n"
@@ -81,9 +83,10 @@ int main(int argc, char* argv[]) {
                       << "2. Per prezzo di acquisto" << std::endl
                       << "3. Per prezzo di vendita" << std::endl
                       << "4. Per quantità" << std::endl
+                      << "5. Per categoria" << std::endl
                       << "0. Esci" << std::endl
                       << "Scegli: ";
-            int ordinamento = get_int(0, 4);
+            int ordinamento = get_int(0, 5);
 
             switch (ordinamento) {
             case 0:
@@ -99,6 +102,9 @@ int main(int argc, char* argv[]) {
                 break;
             case 4:
                 mercato.ordina_magazzino_quantita();
+                break;
+            case 5:
+                mercato.ordina_magazzino_categoria();
                 break;
             }
             if (ordinamento == 0) break;

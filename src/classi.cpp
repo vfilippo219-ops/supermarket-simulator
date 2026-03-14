@@ -7,9 +7,11 @@
 #include <algorithm>
 
 // --- Prodotto ----------------------------------
-Prodotto::Prodotto(std::string nw_nome, float nw_prezzo_acquisto, float nw_prezzo_vendita, int nw_quantita)
-    : nome(nw_nome), prezzo_acquisto(nw_prezzo_acquisto), prezzo_vendita(nw_prezzo_vendita), quantita(nw_quantita) {}
+Prodotto::Prodotto(std::string nw_nome, float nw_prezzo_acquisto, float nw_prezzo_vendita, int nw_quantita, std::string nw_categoria)
+    : nome(nw_nome), prezzo_acquisto(nw_prezzo_acquisto), prezzo_vendita(nw_prezzo_vendita), quantita(nw_quantita), categoria(nw_categoria) {}
 
+// --- gets ---------------------------
+    
 std::string Prodotto::get_nome() const {
     return nome;
 }
@@ -26,6 +28,10 @@ int Prodotto::get_quantita() const {
     return quantita;
 }
 
+std::string Prodotto::get_categoria() const {
+    return categoria;
+}
+
 void Prodotto::comprato(int comprati) {
     quantita -= comprati;
 }
@@ -35,9 +41,10 @@ void Prodotto::set_quantita(int nw_quantita) {
 }
 // ------------------------------------------------
 
-// --- Mercato ------------------------------------
+// ==== Mercato ==================================
 Mercato::Mercato(std::string nw_nome) : nome(nw_nome), saldo(100), giorno(1) {}
 
+// --- carica prodotti da file -------------------------------
 void Mercato::carica_prodotti(const std::string& filename) {
     std::ifstream in(filename);
     if (!in.is_open()) {
@@ -49,7 +56,7 @@ void Mercato::carica_prodotti(const std::string& filename) {
     std::string riga;
     while (std::getline(in, riga)) {
         std::stringstream ss(riga);
-        std::string nome, tmp;
+        std::string nome, categoria, tmp;
         float prezzo_acquisto, prezzo_vendita;
         int quantita;
 
@@ -57,10 +64,27 @@ void Mercato::carica_prodotti(const std::string& filename) {
         std::getline(ss, tmp, ';'); prezzo_acquisto = std::stof(tmp);
         std::getline(ss, tmp, ';'); prezzo_vendita = std::stof(tmp);
         std::getline(ss, tmp, ';'); quantita = std::stof(tmp);
+        std::getline(ss, categoria);
 
-        aggiungi_prodotto(nome, prezzo_acquisto, prezzo_vendita, quantita);
+        aggiungi_prodotto(nome, prezzo_acquisto, prezzo_vendita, quantita, categoria);
         
     }
+    in.close();
+}
+
+// --- carica categorie da file ------------------------------
+void Mercato::carica_categorie_prodotti(const std::string& filename) {
+    std::ifstream in(filename);
+    if (!in.is_open()) {
+        std::cerr << "Errore: file '" << filename << "' non trovato!\n";
+        return;
+    }
+
+    std::string cat;
+    while (std::getline(in, cat)) {
+        categorie.push_back(cat);
+    }
+    in.close();
 }
 
 std::string Mercato::get_nome() const {
@@ -77,8 +101,8 @@ int Mercato::get_giorno() const {
 
 // --------------------
 
-void Mercato::aggiungi_prodotto(std::string nw_nome, float nw_prezzo_acquisto, float nw_prezzo_vendita, int nw_quantita) {
-    Prodotto prodotto = {nw_nome, nw_prezzo_acquisto, nw_prezzo_vendita, nw_quantita};
+void Mercato::aggiungi_prodotto(std::string nw_nome, float nw_prezzo_acquisto, float nw_prezzo_vendita, int nw_quantita, std::string nw_categoria) {
+    Prodotto prodotto = {nw_nome, nw_prezzo_acquisto, nw_prezzo_vendita, nw_quantita, nw_categoria};
     prodotti.push_back(prodotto);
 }
 
@@ -92,7 +116,8 @@ void Mercato::mostra_prodotti() {
                   << ". " << prodotti[i].get_nome()
                   << " | Acquisto: (" << prodotti[i].get_prezzo_acquisto() << "€)"
                   << " | Vendita: (" << prodotti[i].get_prezzo_vendita() << "€)" 
-                  << " | Quantita: " << prodotti[i].get_quantita() << std::endl;
+                  << " | Quantita: '" << prodotti[i].get_quantita() << "'"
+                  << " | '" << prodotti[i].get_categoria() << "'" << std::endl;
     }
 }
 
@@ -108,8 +133,10 @@ void Mercato::mostra_magazzino() {
                   << ". " << magazzino[i].get_nome()
                   << " | Acquisto: (" << magazzino[i].get_prezzo_acquisto() << "€)"
                   << " | Vendita: (" << magazzino[i].get_prezzo_vendita() << "€)"
-                  << " | Quantita: " << magazzino[i].get_quantita() << std::endl;
+                  << " | Quantita: '" << magazzino[i].get_quantita() << "'"
+                  << " | '" << magazzino[i].get_categoria() << "'" << std::endl;
     }
+    std::cout << std::endl;
     system("pause");
 }
 
@@ -146,7 +173,7 @@ float Mercato::compra_prodotti() {
                 continue;
             }
             spesa_totale += spesa;
-            std::cout << "\n'" << comprati << "' " << prodotti[scelta].get_nome() << " comprati per (" << spesa << "€)!\n"
+            std::cout << "\n" << comprati << " '" << prodotti[scelta].get_nome() << "' comprati per (" << spesa << "€)!\n"
                       << "---------------------------------------\n";
 
             // cerca prodotto in magazzino
@@ -162,7 +189,8 @@ float Mercato::compra_prodotti() {
                 Prodotto in_magazzino = {prodotti[scelta].get_nome(),
                                          prodotti[scelta].get_prezzo_acquisto(),
                                          prodotti[scelta].get_prezzo_vendita(),
-                                         comprati};
+                                         comprati,
+                                         prodotti[scelta].get_categoria()};
                 magazzino.push_back(in_magazzino);
             }
             prodotti[scelta].comprato(comprati);
@@ -238,8 +266,20 @@ void Mercato::ordina_magazzino_quantita() {
     });
 }
 
-// ---- Restock prodotti -------------------------------
+void Mercato::ordina_magazzino_categoria() {
+    ordinamento = "CATEGORIA";
+    std::sort(magazzino.begin(), magazzino.end(), [](const Prodotto &a, const Prodotto &b) {
+        std::string p1 = a.get_categoria();
+        std::string p2 = b.get_categoria();
 
+        std::transform(p1.begin(), p1.end(), p1.begin(), ::tolower);
+        std::transform(p2.begin(), p2.end(), p2.begin(), ::tolower);
+
+        return p1 < p2;
+    });
+}
+
+// ---- Restock prodotti -------------------------------
 void Mercato::restock_prodotti() {
     int restock = rand() % giorno + 1;
     for (auto &p : prodotti) {
@@ -248,7 +288,6 @@ void Mercato::restock_prodotti() {
 }
 
 // --- end game ----------------------
-
 void Mercato::end_game() {
     clear_screen();
     profitto_tot = ricavo_tot - spesa_tot;

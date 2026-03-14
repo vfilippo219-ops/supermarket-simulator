@@ -1,10 +1,10 @@
-Pane;10;20;15
-Carne;20;40;5
-Posea;15;25;10
-Penna;1.40;2.25;20
-Quaderno;0.50;1.30;20
-Goleador;0.10;0.30;30
-Pasta;2;3.50;18
-Caramelle;1.50;3.00;20
-Friggitrice ad aria;100;180;4
-Televisore;200;350;3
+Pane;10;20;15;Panificati
+Carne;20;40;5;Carne
+Posea;15;25;10;Giocattoli
+Penna;1.40;2.25;20;Scuola
+Quaderno;0.50;1.30;20;Scuola
+Goleador;0.10;0.30;30;Dolci
+Pasta;2;3.50;18;Panificati
+Caramelle;1.50;3.00;20;Dolci
+Friggitrice ad aria;100;180;4;Elettricità
+Televisore;200;350;3;Elettricità

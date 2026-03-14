@@ -43,9 +43,3 @@ std::string get_nome() {
     }
     return nome;
 }
-
-int estrazione_clienti(int giorno) {
-    int clienti = (rand() % giorno) + (rand() % 5);
-    if (clienti == 0) clienti = 1;
-    return clienti;
-}
