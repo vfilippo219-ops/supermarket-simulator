@@ -35,7 +35,8 @@ private:
     std::vector<std::string> categorie;
 
     std::vector<Prodotto> magazzino;
-    std::string ordinamento;
+    std::string ordinamento_magazzino;
+    std::string ordinamento_prodotti;
 
     int clienti_tot = 0;
     float ricavo_tot = 0;
@@ -63,6 +64,13 @@ public:
     int estrazione_clienti();
     float compra_prodotti();
     float vendi_prodotti(int clienti);
+
+    // --- ordinamento prodotti ---------------------
+    void ordina_prodotti_nome();
+    void ordina_prodotti_prezzo_acquisto();
+    void ordina_prodotti_prezzo_vendita();
+    void ordina_prodotti_quantita();
+    void ordina_prodotti_categoria();
 
     // --- ordinamento magazzino ----------------
     void ordina_magazzino_nome();

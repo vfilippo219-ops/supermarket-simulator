@@ -111,6 +111,7 @@ void Mercato::passa_giorno() {
 }
 
 void Mercato::mostra_prodotti() {
+    std::cout << "----- Ordinamento per '" << ordinamento_prodotti << "' -----\n\n";
     for (size_t i = 0; i < prodotti.size(); i++) {
         std::cout << i + 1 
                   << ". " << prodotti[i].get_nome()
@@ -127,7 +128,7 @@ void Mercato::mostra_magazzino() {
         system("pause");
         return;
     }
-    std::cout << "\n--- Ordinamento per '" << ordinamento << "' ---\n";
+    std::cout << "\n----- Ordinamento per '" << ordinamento_magazzino << "' -----\n";
     for (size_t i = 0; i < magazzino.size(); i++) {
         std::cout << i + 1
                   << ". " << magazzino[i].get_nome()
@@ -150,10 +151,9 @@ int Mercato::estrazione_clienti() {
 float Mercato::compra_prodotti() {
     float spesa_totale = 0;
     while (1) {
-        std::cout << "\nSaldo: " << saldo << "€" << std::endl
-                  << "------------ Prodotti ------------\n";
+        std::cout << "Saldo: " << saldo << "€" << std::endl;
         mostra_prodotti();
-        std::cout << "0. Esci" << std::endl
+        std::cout << "\n0. Esci" << std::endl
                   << "Scegli: ";
         int scelta = get_int(0, prodotti.size());
         scelta--;
@@ -174,7 +174,7 @@ float Mercato::compra_prodotti() {
             }
             spesa_totale += spesa;
             std::cout << "\n" << comprati << " '" << prodotti[scelta].get_nome() << "' comprati per (" << spesa << "€)!\n"
-                      << "---------------------------------------\n";
+                      << "─────────────────────────────────────────────\n\n";
 
             // cerca prodotto in magazzino
             bool trovato = false;
@@ -221,10 +221,57 @@ float Mercato::vendi_prodotti(int clienti) {
     return ricavo;
 }
 
-// --- ordinamento magazzino ------------------------------------
+// --- ordinamento prodotti ----------------------------------
+void Mercato::ordina_prodotti_nome() {
+    ordinamento_prodotti = "NOME";
+    std::sort(prodotti.begin(), prodotti.end(), [](const Prodotto &a, const Prodotto &b) {
+        std::string p1 = a.get_nome();
+        std::string p2 = b.get_nome();
 
+        std::transform(p1.begin(), p1.end(), p1.begin(), ::tolower);
+        std::transform(p2.begin(), p2.end(), p2.begin(), ::tolower);
+
+        return p1 < p2;
+    });
+}
+
+void Mercato::ordina_prodotti_prezzo_acquisto() {
+    ordinamento_prodotti = "PREZZO DI ACQUISTO";
+    std::sort(prodotti.begin(), prodotti.end(), [](const Prodotto &a, const Prodotto &b) {
+        return a.get_prezzo_acquisto() > b.get_prezzo_acquisto();
+    });
+}
+
+void Mercato::ordina_prodotti_prezzo_vendita() {
+    ordinamento_prodotti = "PREZZO DI VENDITA";
+    std::sort(prodotti.begin(), prodotti.end(), [](const Prodotto &a, const Prodotto &b) {
+        return a.get_prezzo_vendita() > b.get_prezzo_vendita();
+    });
+}
+
+void Mercato::ordina_prodotti_quantita() {
+    ordinamento_prodotti = "QUANTITA";
+    std::sort(prodotti.begin(), prodotti.end(), [](const Prodotto &a, const Prodotto &b) {
+        return a.get_quantita() > b.get_quantita();
+    });
+}
+
+void Mercato::ordina_prodotti_categoria() {
+    ordinamento_prodotti = "CATEGORIA";
+    std::sort(prodotti.begin(), prodotti.end(), [](const Prodotto &a, const Prodotto &b) {
+        std::string p1 = a.get_categoria();
+        std::string p2 = b.get_categoria();
+
+        std::transform(p1.begin(), p1.end(), p1.begin(), ::tolower);
+        std::transform(p2.begin(), p2.end(), p2.begin(), ::tolower);
+
+        return p1 < p2;
+    });
+}
+
+// --- ordinamento magazzino ------------------------------------
 void Mercato::ordina_magazzino_nome() {
-    ordinamento = "NOME";
+    ordinamento_magazzino = "NOME";
     std::sort(magazzino.begin(), magazzino.end(), [](const Prodotto &a, const Prodotto &b) {
         std::string p1 = a.get_nome();
         std::string p2 = b.get_nome();
@@ -237,37 +284,28 @@ void Mercato::ordina_magazzino_nome() {
 }
 
 void Mercato::ordina_magazzino_prezzo_acquisto() {
-    ordinamento = "PREZZO DI ACQUISTO";
+    ordinamento_magazzino = "PREZZO DI ACQUISTO";
     std::sort(magazzino.begin(), magazzino.end(), [](const Prodotto &a, const Prodotto &b) {
-        float p1 = a.get_prezzo_acquisto();
-        float p2 = b.get_prezzo_acquisto();
-
-        return p1 > p2;
+        return a.get_prezzo_acquisto() > b.get_prezzo_acquisto();
     });
 }
 
 void Mercato::ordina_magazzino_prezzo_vendita() {
-    ordinamento = "PREZZO DI VENDITA";
+    ordinamento_magazzino = "PREZZO DI VENDITA";
     std::sort(magazzino.begin(), magazzino.end(), [](const Prodotto &a, const Prodotto &b) {
-        float p1 = a.get_prezzo_vendita();
-        float p2 = b.get_prezzo_vendita();
-
-        return p1 > p2;
+        return a.get_prezzo_vendita() > b.get_prezzo_vendita();
     });
 }
 
 void Mercato::ordina_magazzino_quantita() {
-    ordinamento = "QUANTITÀ";
+    ordinamento_magazzino = "QUANTITÀ";
     std::sort(magazzino.begin(), magazzino.end(), [](const Prodotto &a, const Prodotto &b) {
-        int p1 = a.get_quantita();
-        int p2 = b.get_quantita();
-
-        return p1 > p2;
+        return a.get_quantita() > b.get_quantita();
     });
 }
 
 void Mercato::ordina_magazzino_categoria() {
-    ordinamento = "CATEGORIA";
+    ordinamento_magazzino = "CATEGORIA";
     std::sort(magazzino.begin(), magazzino.end(), [](const Prodotto &a, const Prodotto &b) {
         std::string p1 = a.get_categoria();
         std::string p2 = b.get_categoria();

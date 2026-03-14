@@ -23,6 +23,7 @@ int main(int argc, char* argv[]) {
     Mercato mercato(nome_negozio);
     mercato.carica_prodotti(root + FILE_PRODOTTI);
     mercato.carica_categorie_prodotti(root + FILE_CATEGORIE_PRODOTTI);
+    mercato.ordina_prodotti_categoria();
     mercato.ordina_magazzino_nome();
 
     while (mercato.get_giorno() <= GIORNO_FINALE) {
@@ -34,10 +35,12 @@ int main(int argc, char* argv[]) {
                   << "1. Acquista" << std::endl
                   << "2. Apri" << std::endl
                   << "3. Mostra magazzino" << std::endl
-                  << "4. Cambia ordinamento magazzino" << std::endl
+                  << "4. Mostra prodotti" << std::endl
+                  << "5. Cambia ordinamento magazzino" << std::endl
+                  << "6. Cambia ordinamento prodotti" << std::endl
                   << "0. Esci" << std::endl
                   << "Scegli: ";
-        int scelta = get_int(0, 4);
+        int scelta = get_int(0, 6);
 
         switch (scelta) {
         case 0:
@@ -72,13 +75,20 @@ int main(int argc, char* argv[]) {
         }
         case 3:
             clear_screen();
-            std::cout << "──────── MAGAZZINO ────────\n";
+            std::cout << "────────────── MAGAZZINO ──────────────\n";
             mercato.mostra_magazzino();
             break;
         case 4:
+            clear_screen();
+            std::cout << "────────────── PRODOTTI ──────────────\n";
+            mercato.mostra_prodotti();
+            std::cout << std::endl;
+            system("pause");
+            break;
+        case 5:
         {
             clear_screen();
-            std::cout << "\n──── Scegli ordinamento magazzino ────\n"
+            std::cout << "──── Scegli ordinamento magazzino ────\n"
                       << "1. Per nome" << std::endl
                       << "2. Per prezzo di acquisto" << std::endl
                       << "3. Per prezzo di vendita" << std::endl
@@ -111,6 +121,46 @@ int main(int argc, char* argv[]) {
             
             clear_screen();
             mercato.mostra_magazzino();
+            break;
+        }
+        case 6:
+        {
+            clear_screen();
+            std::cout << "────── Scegli ordinamento prodotti ──────\n"
+                      << "1. Per nome" << std::endl
+                      << "2. Per prezzo di acquisto" << std::endl
+                      << "3. Per prezzo di vendita" << std::endl
+                      << "4. Per quantità" << std::endl
+                      << "5. Per categoria" << std::endl
+                      << "0. Esci" << std::endl
+                      << "Scegli: ";
+            int ordinamento = get_int(0, 5);
+
+            switch (ordinamento) {
+            case 0:
+                break;
+            case 1:
+                mercato.ordina_prodotti_nome();
+                break;
+            case 2:
+                mercato.ordina_prodotti_prezzo_acquisto();
+                break;
+            case 3:
+                mercato.ordina_prodotti_prezzo_vendita();
+                break;
+            case 4:
+                mercato.ordina_prodotti_quantita();
+                break;
+            case 5:
+                mercato.ordina_prodotti_categoria();
+                break;
+            }
+            if (ordinamento == 0) break;
+
+            clear_screen();
+            mercato.mostra_prodotti();
+            std::cout << std::endl;
+            system("pause");
             break;
         }
         }
