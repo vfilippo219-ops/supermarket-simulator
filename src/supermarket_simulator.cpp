@@ -5,6 +5,8 @@
 #include <windows.h>
 #include <time.h>
 
+const int GIORNO_FINALE = 30;
+
 #define FILE_PRODOTTI "/files/prodotti_supermarket.txt"
 
 int main(int argc, char* argv[]) {
@@ -21,9 +23,8 @@ int main(int argc, char* argv[]) {
     mercato.carica_prodotti(root + FILE_PRODOTTI);
     mercato.ordina_magazzino_nome();
 
-    while (1) {
+    while (mercato.get_giorno() <= GIORNO_FINALE) {
         float spesa, ricavo, profitto;
-        mercato.restock_prodotti();
         clear_screen();
         std::cout << "───────────────────────────────────────\n"
                   << "------- " << nome_negozio << "'s Menù -------\n"
@@ -64,6 +65,7 @@ int main(int argc, char* argv[]) {
             clear_input();
             getchar();
             mercato.passa_giorno();
+            mercato.restock_prodotti();
             break;
         }
         case 3:
@@ -107,4 +109,6 @@ int main(int argc, char* argv[]) {
         }
         }
     }
+    mercato.end_game();
+    return 0;
 }

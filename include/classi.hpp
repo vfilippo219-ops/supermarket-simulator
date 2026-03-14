@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 
+extern const int GIORNO_FINALE;
+
 class Prodotto{
 private:
     std::string nome;
@@ -30,6 +32,12 @@ private:
     std::vector<Prodotto> prodotti;
     std::vector<Prodotto> magazzino;
     std::string ordinamento;
+
+    int clienti_tot = 0;
+    float ricavo_tot = 0;
+    float spesa_tot = 0;
+    float profitto_tot = 0;
+
 public:
     Mercato(std::string nw_nome);
 
@@ -45,6 +53,7 @@ public:
     void venduto();
     void mostra_prodotti();
     void mostra_magazzino();
+    int estrazione_clienti();
     float compra_prodotti();
     float vendi_prodotti(int clienti);
 
@@ -56,6 +65,9 @@ public:
 
     // --- Restock prodotti -----------------------
     void restock_prodotti();
+
+    // --- end game ---------------------------
+    void end_game();
 
 };
 

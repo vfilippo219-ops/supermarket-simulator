@@ -113,11 +113,18 @@ void Mercato::mostra_magazzino() {
     system("pause");
 }
 
+int Mercato::estrazione_clienti() {
+    int clienti = (rand() % giorno) + (rand() % 5);
+    if (clienti == 0) clienti = 1;
+    clienti_tot += clienti;
+    return clienti;
+}
+
 float Mercato::compra_prodotti() {
     float spesa_totale = 0;
     while (1) {
-        std::cout << "Saldo: " << saldo << std::endl
-                  << "\n------------ Prodotti ------------\n";
+        std::cout << "\nSaldo: " << saldo << "€" << std::endl
+                  << "------------ Prodotti ------------\n";
         mostra_prodotti();
         std::cout << "0. Esci" << std::endl
                   << "Scegli: ";
@@ -129,17 +136,18 @@ float Mercato::compra_prodotti() {
                 std::cout << "Saldo non disponibile!\n";
                 continue;
             }
-            std::cout << "Inserire numero prodotti da comprare: ";
+            std::cout << "\nInserire numero prodotti da comprare: ";
             int comprati = get_int(0, prodotti[scelta].get_quantita());
 
             float spesa = prodotti[scelta].get_prezzo_acquisto() * comprati;
-            spesa_totale += spesa;
+            
             if (saldo < spesa) {
                 std::cout << "Saldo non disponibile!\n";
                 continue;
             }
-            std::cout << comprati << " " << prodotti[scelta].get_nome() << " comprati per " << spesa << " €!\n";
-            
+            spesa_totale += spesa;
+            std::cout << "\n'" << comprati << "' " << prodotti[scelta].get_nome() << " comprati per (" << spesa << "€)!\n"
+                      << "---------------------------------------\n";
 
             // cerca prodotto in magazzino
             bool trovato = false;
@@ -159,9 +167,9 @@ float Mercato::compra_prodotti() {
             }
             prodotti[scelta].comprato(comprati);
             saldo -= spesa;
-            std::cout << "\nSaldo: " << saldo << "€\n";
         }
     }
+    spesa_tot += spesa_totale;
     return spesa_totale;
 }
 
@@ -181,6 +189,7 @@ float Mercato::vendi_prodotti(int clienti) {
         magazzino[prodotto_acquistato].comprato(acquistati);
     }
     saldo += ricavo;
+    ricavo_tot += ricavo;
     return ricavo;
 }
 
@@ -236,4 +245,18 @@ void Mercato::restock_prodotti() {
     for (auto &p : prodotti) {
         p.set_quantita(p.get_quantita() + restock);
     }
+}
+
+// --- end game ----------------------
+
+void Mercato::end_game() {
+    clear_screen();
+    profitto_tot = ricavo_tot - spesa_tot;
+    std::cout << "\nComplimenti!!! Hai superato '" << GIORNO_FINALE << "' giorni!\n"
+              << "\nSaldo: " << saldo << std::endl 
+              << "Clienti totali: " << clienti_tot << std::endl
+              << "Ricavo totale: " << ricavo_tot << std::endl
+              << "Spesa totale: " << spesa_tot << std::endl
+              << "Profitto totale: " << profitto_tot << std::endl;
+    system("pause");
 }
