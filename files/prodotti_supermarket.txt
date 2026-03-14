@@ -8,3 +8,13 @@ Pasta;2;3.50;18;Panificati
 Caramelle;1.50;3.00;20;Dolci
 Friggitrice ad aria;100;180;4;Elettricità
 Televisore;200;350;3;Elettricità
+Piadina;5;15;20;Panificato
+Carote;2;5;50;Verdura
+Cipolle;4;10;30;Verdura
+Pomodori;7;12;40;Verdura
+Crepes;5;10;30;Panificati
+Arancia;3;6;50;Frutta
+Fragola;5;8;40;Frutta
+Limone;4;7;50;Frutta
+Orata;6;12;40;Pesce
+Merluzzo;5;10;30;Pesce

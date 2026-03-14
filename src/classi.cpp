@@ -3,10 +3,9 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <time.h>
 #include <algorithm>
 
-// --- Prodotto ----------------------------------
+// === Prodotto =================================
 Prodotto::Prodotto(std::string nw_nome, float nw_prezzo_acquisto, float nw_prezzo_vendita, int nw_quantita, std::string nw_categoria)
     : nome(nw_nome), prezzo_acquisto(nw_prezzo_acquisto), prezzo_vendita(nw_prezzo_vendita), quantita(nw_quantita), categoria(nw_categoria) {}
 
@@ -202,6 +201,7 @@ float Mercato::compra_prodotti() {
 }
 
 float Mercato::vendi_prodotti(int clienti) {
+    prodotti_venduti.clear();
     float ricavo = 0;
     if (magazzino.empty()) {
         std::cout << "\nMagazzino vuoto! La gente è andata a casa!\n";
@@ -215,10 +215,38 @@ float Mercato::vendi_prodotti(int clienti) {
         if (acquistati > magazzino[prodotto_acquistato].get_quantita()) acquistati = magazzino[prodotto_acquistato].get_quantita();
         ricavo += (magazzino[prodotto_acquistato].get_prezzo_vendita() * acquistati);
         magazzino[prodotto_acquistato].comprato(acquistati);
+
+        bool trovato = false;
+        for (auto &p : prodotti_venduti) {
+            if (p.get_nome() == magazzino[prodotto_acquistato].get_nome()) {
+                p.set_quantita(p.get_quantita() + acquistati);
+                trovato = true;
+                break;
+            }
+        }
+        if (!trovato) {
+            Prodotto in_prodotti_venduti = {magazzino[prodotto_acquistato].get_nome(),
+                                            magazzino[prodotto_acquistato].get_prezzo_acquisto(),
+                                            magazzino[prodotto_acquistato].get_prezzo_vendita(),
+                                            acquistati,
+                                            magazzino[prodotto_acquistato].get_categoria()};
+            prodotti_venduti.push_back(in_prodotti_venduti);
+        }
     }
     saldo += ricavo;
     ricavo_tot += ricavo;
     return ricavo;
+}
+
+void Mercato::mostra_prodotti_venduti() {
+    if (prodotti_venduti.empty()) {
+        std::cout << "\nNessun prodotto venduto!\n";
+        return;
+    }
+    std::cout << "\nProdotti venduti:\n";
+    for (size_t i = 0; i < prodotti_venduti.size(); i++) {
+        std::cout << i+1 << ". " << prodotti_venduti[i].get_nome() << " '" << prodotti_venduti[i].get_quantita() << "'" << std::endl;
+    }
 }
 
 // --- ordinamento prodotti ----------------------------------
@@ -335,5 +363,6 @@ void Mercato::end_game() {
               << "Ricavo totale: " << ricavo_tot << std::endl
               << "Spesa totale: " << spesa_tot << std::endl
               << "Profitto totale: " << profitto_tot << std::endl;
+    std::cout << std::endl;
     system("pause");
 }

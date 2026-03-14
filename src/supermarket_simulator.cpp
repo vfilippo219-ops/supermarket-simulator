@@ -11,7 +11,7 @@ const int GIORNO_FINALE = 30;
 #define FILE_CATEGORIE_PRODOTTI "/files/categorie_prodotti_supermarket.txt"
 
 int main(int argc, char* argv[]) {
-    srand(time(NULL));
+    srand(time(0));
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
     std::string root = (argc > 1) ? argv[1] : ".";
@@ -64,6 +64,7 @@ int main(int argc, char* argv[]) {
                       << "Spesa: " << spesa << "€" << std::endl
                       << "Profitto: " << profitto << "€" << std::endl
                       << "Saldo: " << mercato.get_saldo() << "€" << std::endl;
+            mercato.mostra_prodotti_venduti();
             spesa=0;ricavo=0;profitto=0;
 
             std::cout << "\nPremi un tasto per passare al giorno successivo!\n";

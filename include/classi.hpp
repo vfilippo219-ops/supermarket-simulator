@@ -42,6 +42,7 @@ private:
     float ricavo_tot = 0;
     float spesa_tot = 0;
     float profitto_tot = 0;
+    std::vector<Prodotto> prodotti_venduti;
 
 public:
     Mercato(std::string nw_nome);
@@ -64,6 +65,7 @@ public:
     int estrazione_clienti();
     float compra_prodotti();
     float vendi_prodotti(int clienti);
+    void mostra_prodotti_venduti();
 
     // --- ordinamento prodotti ---------------------
     void ordina_prodotti_nome();
