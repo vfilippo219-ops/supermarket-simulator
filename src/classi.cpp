@@ -141,7 +141,7 @@ void Mercato::mostra_magazzino() {
 }
 
 int Mercato::estrazione_clienti() {
-    int clienti = (rand() % giorno) + (rand() % 5);
+    int clienti = giorno + (rand() % giorno);
     if (clienti == 0) clienti = 1;
     clienti_tot += clienti;
     return clienti;
